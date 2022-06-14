@@ -7,6 +7,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://user:o68wbnCiT1Yf@18.208.114.214:5672/api-smart-ranking'],
+      noAck: false,
       queue: 'admin-backend',
     },
   });
