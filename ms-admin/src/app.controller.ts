@@ -31,11 +31,14 @@ export class AppController {
       await channel.ack(originalMessage);
     } catch (err) {
       this.logger.error(err);
-      ackErrors.map(async (ackError) => {
-        if (err.message.includes(ackError)) {
-          await channel.ack(originalMessage);
-        }
-      });
+
+      const filterAckError = ackErrors.filter((ackError) =>
+        err.message.includes(ackError),
+      );
+
+      if (filterAckError) {
+        await channel.ack(originalMessage);
+      }
     }
   }
 
