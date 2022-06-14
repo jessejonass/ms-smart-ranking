@@ -3,7 +3,9 @@ import {
   Controller,
   Get,
   Logger,
+  Param,
   Post,
+  Put,
   Query,
   UsePipes,
   ValidationPipe,
@@ -15,6 +17,7 @@ import {
 } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { CreateCategoryDto } from './dtos/create-category.dto';
+import { UpdateCategoryDto } from './dtos/update-category.dto';
 
 @Controller('api/v1')
 export class AppController {
@@ -45,5 +48,17 @@ export class AppController {
       'get-categories',
       categoryId ? categoryId : '',
     );
+  }
+
+  @Put('categories/:categoryId')
+  @UsePipes(ValidationPipe)
+  updateCategory(
+    @Param('categoryId') categoryId: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    this.clientAdminBackend.emit('updaate-category', {
+      id: categoryId,
+      category: updateCategoryDto,
+    });
   }
 }
