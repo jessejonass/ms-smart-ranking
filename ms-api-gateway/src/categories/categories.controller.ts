@@ -23,12 +23,12 @@ export class CategoriesController {
 
   @Post('categories')
   @UsePipes(ValidationPipe)
-  createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+  create(@Body() createCategoryDto: CreateCategoryDto) {
     this.clientAdminBackend.emit('create-category', createCategoryDto);
   }
 
   @Get('categories')
-  findCategories(@Query('categoryId') categoryId: string): Observable<any> {
+  findAll(@Query('categoryId') categoryId: string): Observable<any> {
     return this.clientAdminBackend.send(
       'get-categories',
       categoryId ? categoryId : '',
@@ -37,7 +37,7 @@ export class CategoriesController {
 
   @Put('categories/:categoryId')
   @UsePipes(ValidationPipe)
-  updateCategory(
+  update(
     @Param('categoryId') categoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
