@@ -12,9 +12,11 @@ export class AppService {
     @InjectModel('Player') private readonly playerModel: Model<Player>,
   ) {}
 
-  private async categoryExists(category: string): Promise<Category> {
+  private readonly logger = new Logger(AppService.name);
+
+  private async categoryExists(categoryId: string): Promise<Category> {
     const categoryExists = await this.categoryModel
-      .findOne({ category })
+      .findOne({ _id: categoryId })
       .exec();
 
     if (!categoryExists) {
@@ -29,7 +31,7 @@ export class AppService {
       const newCategory = new this.categoryModel(category);
       return await newCategory.save();
     } catch (err) {
-      console.log(err);
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
       throw new RpcException(err.message);
     }
   }
@@ -38,16 +40,30 @@ export class AppService {
     try {
       return await this.categoryModel.find().populate('players').exec();
     } catch (err) {
-      console.log(err);
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
       throw new RpcException(err.message);
     }
   }
 
-  async findCategory(category: string): Promise<Category> {
+  async findCategory(categoryId: string): Promise<Category> {
     try {
-      return await this.categoryExists(category);
+      return await this.categoryExists(categoryId);
     } catch (err) {
-      console.log(err);
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
+      throw new RpcException(err.message);
+    }
+  }
+
+  async updateCategory(categoryId: string, category: Category) {
+    await this.categoryExists(categoryId);
+
+    try {
+      await this.categoryModel.findOneAndUpdate(
+        { category },
+        { $set: category },
+      );
+    } catch (err) {
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
       throw new RpcException(err.message);
     }
   }
