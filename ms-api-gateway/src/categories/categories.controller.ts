@@ -21,13 +21,13 @@ export class CategoriesController {
   private clientAdminBackend =
     this.clientProxySmartRanking.getClientProxyAdminBackendInstance();
 
-  @Post('categories')
+  @Post()
   @UsePipes(ValidationPipe)
   create(@Body() createCategoryDto: CreateCategoryDto) {
     this.clientAdminBackend.emit('create-category', createCategoryDto);
   }
 
-  @Get('categories')
+  @Get()
   findAll(@Query('categoryId') categoryId: string): Observable<any> {
     return this.clientAdminBackend.send(
       'get-categories',
@@ -35,7 +35,7 @@ export class CategoriesController {
     );
   }
 
-  @Put('categories/:categoryId')
+  @Put(':categoryId')
   @UsePipes(ValidationPipe)
   update(
     @Param('categoryId') categoryId: string,
