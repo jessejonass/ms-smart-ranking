@@ -13,7 +13,10 @@ export class PlayersService {
   private readonly logger = new Logger(PlayersService.name);
 
   private async playerExists(_id: string): Promise<Player> {
-    const player = await this.playerModel.findOne({ _id }).exec();
+    const player = await this.playerModel
+      .findOne({ _id })
+      .populate('category')
+      .exec();
 
     if (!player) {
       throw new NotFoundException('Player not found');
@@ -43,7 +46,7 @@ export class PlayersService {
 
   async findOne(_id: string): Promise<Player> {
     try {
-      return await this.playerModel.findById({ _id }).exec();
+      return await this.playerExists(_id);
     } catch (error) {
       this.logger.error('Error: ', error.message);
       throw new RpcException(error.message);
@@ -53,12 +56,7 @@ export class PlayersService {
   async update(_id: string, player: Player): Promise<void> {
     try {
       await this.playerExists(_id);
-      await this.playerModel
-        .findOneAndUpdate({ _id }, { $set: player })
-        .exec()
-        .then(() => {
-          console.log('rolou?');
-        });
+      await this.playerModel.findOneAndUpdate({ _id }, { $set: player }).exec();
     } catch (err) {
       this.logger.error(err, err.message);
       throw new RpcException(err.message);
