@@ -13,7 +13,10 @@ export class CategoriesService {
   private readonly logger = new Logger(CategoriesService.name);
 
   private async categoryExists(_id: string): Promise<Category> {
-    const categoryExists = await this.categoryModel.findOne({ _id }).exec();
+    const categoryExists = await this.categoryModel
+      .findOne({ _id })
+      .populate('players')
+      .exec();
 
     if (!categoryExists) {
       throw new NotFoundException('Category not found');
