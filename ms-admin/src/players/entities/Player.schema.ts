@@ -9,6 +9,7 @@ export const PlayerSchema = new mongoose.Schema(
     ranking: String,
     rankingPosition: Number,
     imageUrl: String,
+    category: String,
   },
   {
     timestamps: true,
