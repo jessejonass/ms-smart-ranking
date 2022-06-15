@@ -9,4 +9,7 @@ export class UpdatePlayerDto {
 
   @IsOptional()
   readonly category: string;
+
+  @IsOptional()
+  readonly email: string;
 }
