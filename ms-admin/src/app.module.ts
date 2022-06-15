@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CategorySchema } from './categories/entities/category.schema';
-import { PlayerSchema } from './players/entities/Player.schema';
+import { CategoriesModule } from './categories/categories.module';
+import { PlayersModule } from './players/players.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(
       'mongodb+srv://admin:admin@nestjs-api-smart-rankin.l80zm.mongodb.net/api-smart-ranking-adm-backend?retryWrites=true&w=majority',
     ),
-    MongooseModule.forFeature([{ name: 'Category', schema: CategorySchema }]),
-    MongooseModule.forFeature([{ name: 'Player', schema: PlayerSchema }]),
+    CategoriesModule,
+    PlayersModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
