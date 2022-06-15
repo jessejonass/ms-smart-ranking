@@ -13,10 +13,7 @@ export class PlayersService {
   private readonly logger = new Logger(PlayersService.name);
 
   private async playerExists(_id: string): Promise<Player> {
-    const player = await this.playerModel
-      .findOne({ _id })
-      .populate('category')
-      .exec();
+    const player = await this.playerModel.findOne({ _id }).exec();
 
     if (!player) {
       throw new NotFoundException('Player not found');
@@ -37,7 +34,7 @@ export class PlayersService {
 
   async find(): Promise<Player[]> {
     try {
-      return await this.playerModel.find().populate('category').exec();
+      return await this.playerModel.find().exec();
     } catch (error) {
       this.logger.error('Error: ', error.message);
       throw new RpcException(error.message);
