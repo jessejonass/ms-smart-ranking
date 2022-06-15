@@ -4,6 +4,7 @@ import { PlayersModule } from './players/players.module';
 import { ProxyModule } from './proxy/proxy.module';
 import { AwsModule } from './aws/aws.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChallengesModule } from './challenges/challenges.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
     PlayersModule,
     ProxyModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    ChallengesModule,
   ],
   controllers: [],
   providers: [],
