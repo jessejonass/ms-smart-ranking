@@ -43,17 +43,14 @@ export class PlayersController {
   }
 
   @Get()
-  find(@Query('playerId') playerId: string): Observable<any> {
-    return this.clientAdminBackend.send(
-      'get-players',
-      playerId ? playerId : '',
-    );
+  find(@Query('_id') _id: string): Observable<any> {
+    return this.clientAdminBackend.send('get-players', _id ? _id : '');
   }
 
-  @Put(':playerId')
+  @Put(':_id')
   @UsePipes(ValidationPipe)
   async update(
-    @Param(':playerId') playerId: string,
+    @Param('_id') _id: string,
     @Body() updatePlayerDto: UpdatePlayerDto,
   ): Promise<void> {
     // check category exists sending a event emitter with rmq
@@ -63,7 +60,7 @@ export class PlayersController {
 
     if (category) {
       this.clientAdminBackend.emit('update-player', {
-        id: playerId,
+        _id,
         player: updatePlayerDto,
       });
     } else {
@@ -71,10 +68,8 @@ export class PlayersController {
     }
   }
 
-  @Delete('playerId')
-  async delete(
-    @Param('playerId', ValidationParamsPipe) playerId: string,
-  ): Promise<void> {
-    this.clientAdminBackend.emit('delete-player', { playerId });
+  @Delete(':_id')
+  async delete(@Param('_id', ValidationParamsPipe) _id: string): Promise<void> {
+    this.clientAdminBackend.emit('delete-player', _id);
   }
 }

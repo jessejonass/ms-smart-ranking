@@ -28,21 +28,18 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll(@Query('categoryId') categoryId: string): Observable<any> {
-    return this.clientAdminBackend.send(
-      'get-categories',
-      categoryId ? categoryId : '',
-    );
+  findAll(@Query('_id') _id: string): Observable<any> {
+    return this.clientAdminBackend.send('get-categories', _id ? _id : '');
   }
 
-  @Put(':categoryId')
+  @Put(':_id')
   @UsePipes(ValidationPipe)
   update(
-    @Param('categoryId') categoryId: string,
+    @Param('_id') _id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     this.clientAdminBackend.emit('updaate-category', {
-      id: categoryId,
+      id: _id,
       category: updateCategoryDto,
     });
   }
