@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ChallengesModule } from './challenges/challenges.module';
 import { MatchesModule } from './matches/matches.module';
-import { ConfigModule } from '@nestjs/config';
 import { ProxyModule } from './proxy/proxy.module';
 
 @Module({
   imports: [
+    MongooseModule.forRoot(
+      'mongodb+srv://admin:admin@nestjs-api-smart-rankin.l80zm.mongodb.net/api-smart-ranking-challenges?retryWrites=true&w=majority',
+    ),
     ChallengesModule,
     MatchesModule,
-    ConfigModule.forRoot({ isGlobal: true }),
     ProxyModule,
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
