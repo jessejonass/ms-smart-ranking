@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,10 +10,14 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { lastValueFrom, Observable } from 'rxjs';
+import { AwsService } from 'src/aws/aws.service';
 import { ValidationParamsPipe } from 'src/common/pipes/validation-params.pipe';
 import { ClientProxySmartRanking } from 'src/proxy/client-proxy';
 import { CreatePlayerDto } from './dtos/create-player.dto';
@@ -20,7 +25,10 @@ import { UpdatePlayerDto } from './dtos/update-player.dto';
 
 @Controller('api/v1/players')
 export class PlayersController {
-  constructor(private clientProxySmartRanking: ClientProxySmartRanking) {}
+  constructor(
+    private clientProxySmartRanking: ClientProxySmartRanking,
+    private awsService: AwsService,
+  ) {}
 
   private logger = new Logger(PlayersController.name);
 
@@ -40,6 +48,30 @@ export class PlayersController {
     } else {
       throw new NotFoundException('Category not found');
     }
+  }
+
+  @Post(':_id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file, @Param('_id') _id: string) {
+    const playerExists = await this.clientAdminBackend.send('get-players', _id);
+
+    if (!playerExists) {
+      throw new BadRequestException('Player not found');
+    }
+
+    const imageUrl = await this.awsService.uploadFile(file, _id);
+
+    const updatePlayerDto: UpdatePlayerDto = {};
+    updatePlayerDto.imageUrl = imageUrl.url;
+
+    await lastValueFrom(
+      this.clientAdminBackend.emit('update-player', {
+        _id: _id,
+        player: updatePlayerDto,
+      }),
+    );
+
+    return this.clientAdminBackend.send('get-players', _id);
   }
 
   @Get()
