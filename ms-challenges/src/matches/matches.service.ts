@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { Challenge } from 'src/challenges/entities/Challenge';
 import { ClientProxySmartRanking } from 'src/proxy/client-proxy';
 import { Match } from './entities/Match';
@@ -17,7 +17,10 @@ export class MatchesService {
   private clientChallenges =
     this.clientProxySmartRanking.getClientProxyChallengeInstance();
 
-  async create(match: Match): Promise<Match> {
+  private clientRankings =
+    this.clientProxySmartRanking.getClientProxyRankingsInstance();
+
+  async create(match: Match) {
     try {
       const newMatch = new this.matchModel(match);
 
@@ -31,12 +34,16 @@ export class MatchesService {
         }),
       );
 
-      return await lastValueFrom(
-        this.clientChallenges.emit('update-challenge-match', {
-          matchId: matchId,
-          challenge: challenge,
-        }),
-      );
+      this.clientChallenges.emit('update-challenge-match', {
+        matchId: matchId,
+        challenge: challenge,
+      });
+
+      // send match to ms-rankings
+      return this.clientRankings.emit('proccess-match', {
+        matchId: matchId,
+        match: match,
+      });
     } catch (error) {
       throw new RpcException(error.message);
     }
