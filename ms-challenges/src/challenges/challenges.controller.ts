@@ -16,10 +16,7 @@ export class ChallengesController {
   constructor(private readonly challengesService: ChallengesService) {}
 
   @EventPattern('create-challenge')
-  async criarDesafio(
-    @Payload() challenge: Challenge,
-    @Ctx() context: RmqContext,
-  ) {
+  async create(@Payload() challenge: Challenge, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -37,7 +34,7 @@ export class ChallengesController {
   }
 
   @MessagePattern('get-challenges')
-  async consultarDesafios(
+  async find(
     @Payload() data: any,
     @Ctx() context: RmqContext,
   ): Promise<Challenge[] | Challenge> {
@@ -59,14 +56,14 @@ export class ChallengesController {
   }
 
   @EventPattern('update-challenge')
-  async atualizarDesafio(@Payload() data: any, @Ctx() context: RmqContext) {
+  async updateChallenge(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
     try {
       const _id: string = data.id;
       const challenge: Challenge = data.challenge;
-      await this.challengesService.atualizarDesafio(_id, challenge);
+      await this.challengesService.updateChallenge(_id, challenge);
       await channel.ack(originalMsg);
     } catch (error) {
       const filterAckError = ackErrors.filter((ackError) =>
@@ -79,10 +76,7 @@ export class ChallengesController {
   }
 
   @EventPattern('update-challenge-match')
-  async atualizarDesafioPartida(
-    @Payload() data: any,
-    @Ctx() context: RmqContext,
-  ) {
+  async updateChallengeMatch(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -102,10 +96,7 @@ export class ChallengesController {
   }
 
   @EventPattern('delete-challenge')
-  async deletarDesafio(
-    @Payload() challenge: Challenge,
-    @Ctx() context: RmqContext,
-  ) {
+  async delete(@Payload() challenge: Challenge, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
     try {

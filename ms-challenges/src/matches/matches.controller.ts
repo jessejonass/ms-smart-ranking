@@ -10,7 +10,7 @@ export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @EventPattern('create-match')
-  async criarPartida(@Payload() match: Match, @Ctx() context: RmqContext) {
+  async create(@Payload() match: Match, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
