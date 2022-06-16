@@ -59,14 +59,14 @@ export class ChallengesController {
   }
 
   @EventPattern('update-challenge')
-  async atualizarDesafio(@Payload() data: any, @Ctx() context: RmqContext) {
+  async updateChallenge(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
     try {
       const _id: string = data.id;
       const challenge: Challenge = data.challenge;
-      await this.challengesService.atualizarDesafio(_id, challenge);
+      await this.challengesService.updateChallenge(_id, challenge);
       await channel.ack(originalMsg);
     } catch (error) {
       const filterAckError = ackErrors.filter((ackError) =>

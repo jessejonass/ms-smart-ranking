@@ -51,7 +51,7 @@ export class ChallengesService {
     }
   }
 
-  async atualizarDesafio(
+  async updateChallenge(
     challengeId: string,
     challenge: Challenge,
   ): Promise<void> {
