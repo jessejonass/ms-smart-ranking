@@ -22,7 +22,7 @@ import { Challenge } from './entities/Challenge';
 import { ChallengeStatusEnum } from './entities/ChallengeStatus.enum';
 import { Match } from './entities/Match';
 
-@Controller('challenges')
+@Controller('api/v1/challenges')
 export class ChallengesController {
   constructor(private clientProxySmartRanking: ClientProxySmartRanking) {}
 
@@ -36,7 +36,7 @@ export class ChallengesController {
   @UsePipes(ValidationPipe)
   async create(@Body() createChallengeDto: CreateChallengeDto) {
     const allPlayers: Player[] = await lastValueFrom(
-      this.clientAdminBackend.send('get players', ''),
+      this.clientAdminBackend.send('get-players', ''),
     );
 
     // check requester is a player
@@ -47,7 +47,7 @@ export class ChallengesController {
       );
 
       if (players.length <= 0) {
-        throw new BadRequestException(`${playerDto.name} is not a player`);
+        throw new BadRequestException(`${playerDto._id} is not a player`);
       }
 
       if (String(players[0].category) !== String(createChallengeDto.category)) {
@@ -59,11 +59,12 @@ export class ChallengesController {
 
     // check requester is a match player
     const requester: Player[] = createChallengeDto.players.filter(
-      (player) => String(player._id) === String(createChallengeDto.requester),
+      (player) =>
+        String(player._id) === String(createChallengeDto.requester._id),
     );
 
     if (requester.length <= 0) {
-      throw new BadRequestException('The requester must be a match player');
+      throw new BadRequestException('Requester must be a match player');
     }
 
     // check category exists
@@ -78,7 +79,7 @@ export class ChallengesController {
       throw new NotFoundException('Category not found');
     }
 
-    await this.clientChallenges.emit('create-challenge', createChallengeDto);
+    this.clientChallenges.emit('create-challenge', createChallengeDto);
   }
 
   @Post(':challengeId/match')
@@ -89,7 +90,7 @@ export class ChallengesController {
     const challenge: Challenge = await lastValueFrom(
       this.clientChallenges.send('get-challenges', {
         playerId: '',
-        challengeId: challengeId,
+        _id: challengeId,
       }),
     );
 
@@ -97,11 +98,11 @@ export class ChallengesController {
       throw new NotFoundException(`Challenge not found`);
     }
 
-    if (challenge.status === ChallengeStatusEnum.DONE) {
+    if (challenge.status.toUpperCase() === ChallengeStatusEnum.DONE) {
       throw new BadRequestException(`This challenge is done`);
     }
 
-    if (challenge.status !== ChallengeStatusEnum.ACCEPTED) {
+    if (challenge.status.toUpperCase() !== ChallengeStatusEnum.ACCEPTED) {
       throw new BadRequestException(
         `Matches can only be played in challenges accepted by opponents`,
       );
@@ -120,14 +121,14 @@ export class ChallengesController {
     match.players = challenge.players;
     match.result = addMatchToChallengeDto.result;
 
-    await lastValueFrom(this.clientChallenges.emit('create-match', match));
+    this.clientChallenges.emit('create-match', match);
   }
 
   @Get()
-  async find(@Query() playerId: string): Promise<any> {
+  async find(@Query('playerId') playerId: string): Promise<any> {
     if (playerId) {
       const player: Player = await lastValueFrom(
-        this.clientAdminBackend.send('get-player', {
+        this.clientAdminBackend.send('get-players', {
           _id: playerId,
         }),
       );
@@ -136,12 +137,10 @@ export class ChallengesController {
         throw new NotFoundException('Player not found');
       }
 
-      return await lastValueFrom(
-        this.clientChallenges.send('get-challenges', {
-          playerId,
-          _id: '',
-        }),
-      );
+      return this.clientChallenges.send('get-challenges', {
+        playerId,
+        _id: '',
+      });
     }
   }
 
@@ -161,14 +160,14 @@ export class ChallengesController {
       throw new NotFoundException('Challenge not found');
     }
 
-    if (challenge.status === ChallengeStatusEnum.PENDING) {
+    if (challenge.status !== ChallengeStatusEnum.PENDING) {
       throw new BadRequestException(
         'Only matches with status: PENDING can be updated',
       );
     }
 
-    await this.clientChallenges.emit('update-challenge', {
-      challengeId,
+    this.clientChallenges.emit('update-challenge', {
+      challengeId: challengeId,
       challenge: updateChallengeDto,
     });
   }
@@ -177,8 +176,8 @@ export class ChallengesController {
   async delete(@Param('challengeId') challengeId: string) {
     const challenge: Challenge = await lastValueFrom(
       this.clientChallenges.send('get-challenges', {
-        idPlayer: '',
-        challengeId,
+        playerId: '',
+        _id: challengeId,
       }),
     );
 
@@ -186,8 +185,6 @@ export class ChallengesController {
       throw new NotFoundException('Challenge not found');
     }
 
-    await lastValueFrom(
-      this.clientChallenges.emit('delete-challenge', challenge),
-    );
+    this.clientChallenges.emit('delete-challenge', challenge);
   }
 }
