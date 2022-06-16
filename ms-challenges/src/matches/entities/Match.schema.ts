@@ -9,6 +9,6 @@ export const MatchSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: 'challenges',
+    collection: 'matches',
   },
 );
