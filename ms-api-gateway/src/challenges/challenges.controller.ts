@@ -87,7 +87,7 @@ export class ChallengesController {
     @Param('challengeId') challengeId: string,
   ) {
     const challenge: Challenge = await lastValueFrom(
-      this.clientChallenges.send('consultar-desafios', {
+      this.clientChallenges.send('get-challenges', {
         playerId: '',
         challengeId: challengeId,
       }),
