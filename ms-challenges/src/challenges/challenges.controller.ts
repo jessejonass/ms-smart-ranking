@@ -63,7 +63,6 @@ export class ChallengesController {
     try {
       const _id: string = data.challengeId;
       const challenge: Challenge = data.challenge;
-
       await this.challengesService.updateChallenge(_id, challenge);
       await channel.ack(originalMsg);
     } catch (error) {
