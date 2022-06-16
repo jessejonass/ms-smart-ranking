@@ -61,8 +61,9 @@ export class ChallengesController {
     const originalMsg = context.getMessage();
 
     try {
-      const _id: string = data.id;
+      const _id: string = data.challengeId;
       const challenge: Challenge = data.challenge;
+
       await this.challengesService.updateChallenge(_id, challenge);
       await channel.ack(originalMsg);
     } catch (error) {
@@ -83,6 +84,7 @@ export class ChallengesController {
     try {
       const matchId: string = data.matchId;
       const challenge: Challenge = data.challenge;
+
       await this.challengesService.updateChallengeMatch(matchId, challenge);
       await channel.ack(originalMsg);
     } catch (error) {
@@ -99,6 +101,7 @@ export class ChallengesController {
   async delete(@Payload() challenge: Challenge, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+
     try {
       await this.challengesService.delete(challenge);
       await channel.ack(originalMsg);

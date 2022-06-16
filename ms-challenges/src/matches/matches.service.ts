@@ -27,7 +27,7 @@ export class MatchesService {
       const challenge: Challenge = await lastValueFrom(
         this.clientChallenges.send('get-challenges', {
           playerId: '',
-          challengeId: match.challenge,
+          _id: match.challenge,
         }),
       );
 

@@ -72,6 +72,7 @@ export class ChallengesService {
     try {
       challenge.status = ChallengeStatusEnum.DONE;
       challenge.match = matchId;
+
       await this.challengeModel
         .findOneAndUpdate({ _id: challenge._id }, { $set: challenge })
         .exec();
