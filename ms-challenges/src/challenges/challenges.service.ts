@@ -3,6 +3,8 @@ import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import * as momentTimezone from 'moment-timezone';
 import { Model } from 'mongoose';
+import { lastValueFrom } from 'rxjs';
+import { ClientProxySmartRanking } from 'src/proxy/client-proxy';
 import { Challenge } from './entities/Challenge';
 import { ChallengeStatusEnum } from './entities/ChallengeStatus.enum';
 
@@ -10,7 +12,11 @@ import { ChallengeStatusEnum } from './entities/ChallengeStatus.enum';
 export class ChallengesService {
   constructor(
     @InjectModel('Challenge') private readonly challengeModel: Model<Challenge>,
+    private clientProxySmartRanking: ClientProxySmartRanking,
   ) {}
+
+  private clientNotificationsBackend =
+    this.clientProxySmartRanking.getClientProxyNotificationsInstance();
 
   async create(challenge: Challenge): Promise<Challenge> {
     try {
@@ -18,7 +24,14 @@ export class ChallengesService {
       newChallenge.challengeRequestDatetime = new Date();
 
       newChallenge.status = ChallengeStatusEnum.PENDING;
-      return await newChallenge.save();
+      await newChallenge.save();
+
+      return await lastValueFrom(
+        this.clientNotificationsBackend.emit(
+          'notification-new-challenge',
+          newChallenge,
+        ),
+      );
     } catch (error) {
       throw new RpcException(error.message);
     }
