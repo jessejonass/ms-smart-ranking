@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import * as momentTimezone from 'moment-timezone';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,6 +12,12 @@ async function bootstrap() {
       queue: 'admin-backend',
     },
   });
+
+  Date.prototype.toJSON = function (): any {
+    return momentTimezone(this)
+      .tz('America/Sao_Paulo')
+      .format('YYYY-MM-DD HH:mm:ss.SSS');
+  };
 
   await app.listen();
 }
