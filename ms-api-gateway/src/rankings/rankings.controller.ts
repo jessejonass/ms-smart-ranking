@@ -1,26 +1,15 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { ClientProxySmartRanking } from 'src/proxy/client-proxy';
+import { Controller, Get, Query } from '@nestjs/common';
+import { RankingsService } from './rankings.service';
 
 @Controller('api/v1/rankings')
 export class RankingsController {
-  constructor(private clientProxySmartRanking: ClientProxySmartRanking) {}
-
-  private clientRankingsBackend =
-    this.clientProxySmartRanking.getClientProxyRankingInstance();
+  constructor(private rankingsService: RankingsService) {}
 
   @Get()
-  find(
+  async find(
     @Query('categoryId') categoryId: string,
     @Query('dateRef') dateRef: string,
-  ): Observable<any> {
-    if (!categoryId) {
-      throw new BadRequestException('Category ID is required');
-    }
-
-    return this.clientRankingsBackend.send('get-rankings', {
-      categoryId: categoryId,
-      dateRef: dateRef ? dateRef : '',
-    });
+  ): Promise<any> {
+    return await this.rankingsService.find(categoryId, dateRef);
   }
 }
