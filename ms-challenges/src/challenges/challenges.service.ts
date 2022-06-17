@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
+import * as momentTimezone from 'moment-timezone';
 import { Model } from 'mongoose';
 import { Challenge } from './entities/Challenge';
 import { ChallengeStatusEnum } from './entities/ChallengeStatus.enum';
@@ -88,6 +89,41 @@ export class ChallengesService {
       challenge.status = ChallengeStatusEnum.CANCELED;
       await this.challengeModel
         .findOneAndUpdate({ _id }, { $set: challenge })
+        .exec();
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  async findChallengesByDate(categoryId: string, dateRef: string) {
+    try {
+      const dateRefNew = `${dateRef} 23:59:59.999`;
+
+      return await this.challengeModel
+        .find()
+        .where('category')
+        .equals(categoryId)
+        .where('status')
+        .equals(ChallengeStatusEnum.DONE)
+        .where('challengeDatetime', {
+          $lte: momentTimezone(dateRefNew)
+            .tz('UTC')
+            .format('YYYY-MM-DD HH:mm:ss.SSS+00:00'),
+        })
+        .exec();
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  async findChallengesDone(categoryId: string) {
+    try {
+      return await this.challengeModel
+        .find()
+        .where('category')
+        .equals(categoryId)
+        .where('status')
+        .equals(ChallengeStatusEnum.DONE)
         .exec();
     } catch (error) {
       throw new RpcException(error.message);

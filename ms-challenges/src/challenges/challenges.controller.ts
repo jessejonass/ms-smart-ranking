@@ -113,4 +113,28 @@ export class ChallengesController {
       }
     }
   }
+
+  @MessagePattern('get-challenges-done')
+  async getChallengesDone(
+    @Payload() data: any,
+    @Ctx() context: RmqContext,
+  ): Promise<Challenge[] | Challenge> {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    try {
+      const { categoryId, dateRef } = data;
+
+      if (dateRef) {
+        return await this.challengesService.findChallengesByDate(
+          categoryId,
+          dateRef,
+        );
+      } else {
+        return await this.challengesService.findChallengesDone(categoryId);
+      }
+    } finally {
+      await channel.ack(originalMsg);
+    }
+  }
 }
