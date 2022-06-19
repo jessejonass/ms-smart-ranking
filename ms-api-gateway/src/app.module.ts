@@ -6,6 +6,7 @@ import { AwsModule } from './aws/aws.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChallengesModule } from './challenges/challenges.module';
 import { RankingsModule } from './rankings/rankings.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RankingsModule } from './rankings/rankings.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ChallengesModule,
     RankingsModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
