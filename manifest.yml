@@ -1,6 +1,6 @@
 ---
 applications:
-  - name: admin
+  - name: ms-admin
     path: dist
     instances: 3
     memory: 128MB
