@@ -1,6 +1,6 @@
 ---
 applications:
-  - name: api-gateway
+  - name: admin
     path: dist
     instances: 3
     memory: 128MB
