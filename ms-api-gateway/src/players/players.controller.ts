@@ -7,16 +7,20 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 import { ValidationParamsPipe } from 'src/common/pipes/validation-params.pipe';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { UpdatePlayerDto } from './dtos/update-player.dto';
 import { PlayersService } from './players.service';
+import { Request } from 'express';
 
 @Controller('api/v1/players')
 export class PlayersController {
@@ -37,8 +41,9 @@ export class PlayersController {
     return await this.playerService.uploadFile(file, _id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  async find(@Query('_id') _id: string): Promise<any> {
+  async find(@Req() req: Request, @Query('_id') _id: string): Promise<any> {
     return await this.playerService.find(_id);
   }
 

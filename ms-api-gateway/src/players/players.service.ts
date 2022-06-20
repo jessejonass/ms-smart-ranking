@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-import { AwsService } from 'src/aws/aws.service';
+import { AwsS3Service } from 'src/aws/aws-s3.service';
 import { ClientProxySmartRanking } from 'src/proxy/client-proxy';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { UpdatePlayerDto } from './dtos/update-player.dto';
@@ -13,7 +13,7 @@ import { UpdatePlayerDto } from './dtos/update-player.dto';
 export class PlayersService {
   constructor(
     private clientProxySmartRanking: ClientProxySmartRanking,
-    private awsService: AwsService,
+    private awsS3Service: AwsS3Service,
   ) {}
 
   private clientAdminBackend =
@@ -39,7 +39,7 @@ export class PlayersService {
       throw new BadRequestException('Player not found');
     }
 
-    const imageUrl = await this.awsService.uploadFile(file, _id);
+    const imageUrl = await this.awsS3Service.uploadFile(file, _id);
 
     const updatePlayerDto: UpdatePlayerDto = {};
     updatePlayerDto.imageUrl = imageUrl.url;
