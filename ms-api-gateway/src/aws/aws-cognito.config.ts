@@ -9,6 +9,6 @@ export class AwsCognitoConfig {
     'COGNITO_USER_POOL_ID',
   );
   public clientId: string = this.configService.get<string>('COGNITO_CLIENT_ID');
-  public region: string = this.configService.get<string>('AWS_REGION');
+  public region: string = this.configService.get<string>('AWS_REGION_VIRGINIA');
   public authority = `https://cognito-idp.${this.region}.amazonaws.com/${this.userPoolId}`;
 }
